@@ -1,0 +1,42 @@
+
+public class MainActivity extends AppCompatActivity {
+
+    RecyclerView recyclerView;
+    LinearLayoutManager linearLayoutManager;
+    PostsAdapter adapter;
+    List<Posts> postsList = new ArrayList<>();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+
+        recyclerView=findViewById(R.id.recyclerView);
+        linearLayoutManager= new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        adapter = new PostsAdapter(postsList);
+        recyclerView.setAdapter(adapter);
+
+
+        fetchData();
+    }
+
+    private void fetchData() {
+        RetrofitClient.getRetrofitClient().getPosts().enqueue(new Callback<List<Posts>>() {
+            @Override
+            public void onResponse(Call<List<Posts>> call, Response<List<Posts>> response) {
+                if (response.isSuccessful() && response.body() !=null){
+                    Toast.makeText(MainActivity.this, "success...", Toast.LENGTH_SHORT).show();
+                    postsList.addAll(response.body());
+                    adapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Posts>> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Failed"+t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+}
